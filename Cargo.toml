@@ -1,0 +1,15 @@
+[package]
+name = "grim"
+version = "0.1.0"
+authors = ["Graham Plata <graham.plata@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anchor-lang = "0.17.0"
+gumdrop = { version = "0.8.0", features = ["default_expr"] }
+rusqlite = "0.26.0"
+solana-client = "1.7.0"
+solana-account-decoder = "1.7.11"
+solana-transaction-status = "1.7.10"

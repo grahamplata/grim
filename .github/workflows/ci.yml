@@ -23,6 +23,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+      - run: sudo apt-get install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make
       - uses: actions-rs/cargo@v1
         with:
           command: check
@@ -33,6 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - run: sudo apt-get install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -70,6 +72,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+      - run: sudo apt-get install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make
       - run: rustup component add clippy
       - uses: actions-rs/cargo@v1
         with:

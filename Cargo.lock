@@ -542,10 +542,41 @@ dependencies = [
  "ansi_term",
  "atty",
  "bitflags",
- "strsim",
- "textwrap",
+ "strsim 0.8.0",
+ "textwrap 0.11.0",
  "unicode-width",
  "vec_map",
+]
+
+[[package]]
+name = "clap"
+version = "3.0.0-beta.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fcd70aa5597dbc42f7217a543f9ef2768b2ef823ba29036072d30e1d88e98406"
+dependencies = [
+ "atty",
+ "bitflags",
+ "clap_derive",
+ "indexmap",
+ "lazy_static",
+ "os_str_bytes",
+ "strsim 0.10.0",
+ "termcolor",
+ "textwrap 0.14.2",
+ "vec_map",
+]
+
+[[package]]
+name = "clap_derive"
+version = "3.0.0-beta.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b5bb0d655624a0b8770d1c178fb8ffcb1f91cc722cb08f451e3dc72465421ac"
+dependencies = [
+ "heck",
+ "proc-macro-error",
+ "proc-macro2 1.0.29",
+ "quote 1.0.10",
+ "syn 1.0.80",
 ]
 
 [[package]]
@@ -925,6 +956,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "eta"
+version = "0.1.1"
+dependencies = [
+ "anchor-lang",
+ "clap 3.0.0-beta.4",
+ "rusqlite",
+ "solana-account-decoder",
+ "solana-client",
+ "solana-transaction-status",
+]
+
+[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1184,38 +1227,6 @@ name = "glob"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
-
-[[package]]
-name = "grim"
-version = "0.1.1"
-dependencies = [
- "anchor-lang",
- "gumdrop",
- "rusqlite",
- "solana-account-decoder",
- "solana-client",
- "solana-transaction-status",
-]
-
-[[package]]
-name = "gumdrop"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46571f5d540478cf70d2a42dd0d6d8e9f4b9cc7531544b93311e657b86568a0b"
-dependencies = [
- "gumdrop_derive",
-]
-
-[[package]]
-name = "gumdrop_derive"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "915ef07c710d84733522461de2a734d4d62a3fd39a4d4f404c2f385ef8618d05"
-dependencies = [
- "proc-macro2 1.0.29",
- "quote 1.0.10",
- "syn 1.0.80",
-]
 
 [[package]]
 name = "h2"
@@ -1905,6 +1916,12 @@ dependencies = [
  "pkg-config",
  "vcpkg",
 ]
+
+[[package]]
+name = "os_str_bytes"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6acbef58a60fe69ab50510a55bc8cdd4d6cf2283d27ad338f54cb52747a9cf2d"
 
 [[package]]
 name = "ouroboros"
@@ -2698,7 +2715,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ff790bd97dee3be05ec879b176875f0bb0ef0eb62e5e11e6b269a2d7dc8bf10"
 dependencies = [
  "chrono",
- "clap",
+ "clap 2.33.3",
  "rpassword",
  "solana-remote-wallet",
  "solana-sdk",
@@ -2731,7 +2748,7 @@ dependencies = [
  "base64 0.13.0",
  "bincode",
  "bs58 0.3.1",
- "clap",
+ "clap 2.33.3",
  "indicatif",
  "jsonrpc-core",
  "log",
@@ -2803,7 +2820,7 @@ checksum = "45ce6d1994d0bdcb0571eeaad0718c540b89b626c24df2bdf6987f80837af4c5"
 dependencies = [
  "bincode",
  "byteorder",
- "clap",
+ "clap 2.33.3",
  "log",
  "serde",
  "serde_derive",
@@ -2893,7 +2910,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2be3ee1237d9013cbd11f0d0af69a4473c703b700165e6c39b49cf0c0554d6f9"
 dependencies = [
  "bincode",
- "clap",
+ "clap 2.33.3",
  "log",
  "nix",
  "rand 0.7.3",
@@ -3231,6 +3248,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
+name = "strsim"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
+
+[[package]]
 name = "subtle"
 version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3334,6 +3357,15 @@ name = "textwrap"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
+dependencies = [
+ "unicode-width",
+]
+
+[[package]]
+name = "textwrap"
+version = "0.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0066c8d12af8b5acd21e00547c3797fde4e8677254a7ee429176ccebbe93dd80"
 dependencies = [
  "unicode-width",
 ]

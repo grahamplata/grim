@@ -1,4 +1,4 @@
-use gumdrop::Options;
+use clap::{crate_version, App, Arg};
 use solana_account_decoder::UiAccountEncoding;
 use solana_client::{
     rpc_client::RpcClient,
@@ -6,64 +6,6 @@ use solana_client::{
     rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
 };
 use solana_transaction_status::UiTransactionEncoding;
-
-// Define options for the program.
-#[derive(Clone, Debug, Options)]
-struct AppOptions {
-    // Options here can be accepted with any command (or none at all),
-    // but they must come before the command name.
-    #[options(help = "print help message")]
-    help: bool,
-    #[options(help = "be verbose")]
-    verbose: bool,
-    #[options(
-        help = "rpc network",
-        meta = "RPC",
-        default = "https://api.mainnet-beta.solana.com"
-    )]
-    rpc_url: String,
-    // METAPLEX_PUB_KEY is key reference to the Solana PROGRAM ID
-    #[options(
-        help = "program id",
-        meta = "metaplex",
-        default = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-    )]
-    program_id: String,
-    // The `command` option will delegate option parsing to the command type,
-    // starting at the first free argument.
-    #[options(command)]
-    command: Option<Command>,
-}
-
-// The set of commands and the options each one accepts.
-//
-// Each variant of a command enum should be a unary tuple variant with only
-// one field. This field must implement `Options` and is used to parse arguments
-// that are given after the command name.
-#[derive(Clone, Debug, Options)]
-enum Command {
-    // Command names are generated from variant names.
-    // By default, a CamelCase name will be converted into a lowercase,
-    // hyphen-separated name; e.g. `FooBar` becomes `foo-bar`.
-    //
-    // Names can be explicitly specified using `#[options(name = "...")]`
-    #[options(help = "fetch token addresses")]
-    Fetch(FetchOpts),
-}
-
-// Options accepted for the `fetch` command
-#[derive(Clone, Debug, Options)]
-struct FetchOpts {
-    #[options(help = "print help message")]
-    help: bool,
-    // GRIM_UPDATE_AUTHORITY is key reference to a GRIM Syndicate update authority
-    #[options(
-        help = "update authority address",
-        meta = "grims",
-        default = "Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf"
-    )]
-    update_authority: String,
-}
 
 // build rpc network configuration
 fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
@@ -82,15 +24,20 @@ fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
     cfg
 }
 
-fn fetch_tokens_by_update_authority(app_options: AppOptions, command_opts: FetchOpts) {
+fn fetch_tokens_by_update_authority() {
     // Setup Communication with a Solana node over RPC.
-    let rpc_network = app_options.rpc_url.to_owned();
-    let update_authority = command_opts.update_authority;
-    let client = RpcClient::new(rpc_network);
+    let rpc_network = "https://api.mainnet-beta.solana.com";
+    let update_authority = "Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf";
+    let pubkey = &"metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+        .parse()
+        .unwrap();
+    let client = RpcClient::new(rpc_network.to_owned());
     let cfg = build_rpc_cfg(&update_authority);
-    let pubkey = &app_options.program_id.parse().unwrap();
 
-    println!("Starting fetch on {} using {}", pubkey, update_authority);
+    println!(
+        "Querying Program: {}\nUpdate Authority: {}\nSolana: {}\n",
+        pubkey, update_authority, rpc_network,
+    );
     // Metaplex Token Metadata Program Public Key
     let metadata_accounts = client
         .get_program_accounts_with_config(pubkey, cfg)
@@ -155,17 +102,52 @@ fn fetch_tokens_by_update_authority(app_options: AppOptions, command_opts: Fetch
 }
 
 fn main() {
-    // Parse options from the environment.
-    // If there's an error or the user requests help,
-    // the process will exit after giving the appropriate response.
-    let app_options = AppOptions::parse_args_default_or_exit();
-    match app_options.clone().command {
-        Some(command) => match command {
-            Command::Fetch(command_options) => {
-                fetch_tokens_by_update_authority(app_options, command_options);
-            }
-        },
-        // Default condition
-        None => println!("Agent! You forgot to supply a command!"),
+    let matches = App::new("eta")
+        .version(crate_version!())
+        .author("Graham Plata <graham.plata@gmail.com>")
+        .about("CLI tool to explore the Grim Syndicate and Ethereal Transit Authority ecosystem.")
+        .license("MIT")
+        .subcommand(
+            App::new("fetch")
+                .about("fetch token addresses")
+                .arg(
+                    Arg::new("addresses")
+                        .short('a')
+                        .long("addresses")
+                        .about("lists all token addresses"),
+                )
+                .arg(
+                    Arg::new("metadata")
+                        .short('m')
+                        .long("metadata")
+                        .about("lists all token metadata"),
+                ),
+        )
+        .subcommand(App::new("watch").about("follow market movement on supported platforms"))
+        .subcommand(App::new("floor").about("get the floor price"))
+        .subcommand(App::new("community").about("fetch community info"))
+        .get_matches();
+
+    // Check for the existence of subcommands, and if found use their matches just as you would the top level app
+    if let Some(matches) = matches.subcommand_matches("fetch") {
+        if matches.is_present("addresses") {
+            fetch_tokens_by_update_authority();
+        } else if matches.is_present("metadata") {
+            println!("Printing metadata...");
+        } else {
+            println!("Agent! You forgot to supply a command!");
+        }
+    }
+
+    if let Some(_matches) = matches.subcommand_matches("community") {
+        println!("fetching community info...");
+    }
+
+    if let Some(_matches) = matches.subcommand_matches("floor") {
+        println!("fetching floor...");
+    }
+
+    if let Some(_matches) = matches.subcommand_matches("watch") {
+        println!("starting watch...");
     }
 }

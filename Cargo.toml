@@ -1,5 +1,5 @@
 [package]
-name = "grim"
+name = "eta"
 version = "0.1.1"
 authors = ["Graham Plata <graham.plata@gmail.com>"]
 edition = "2018"
@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 anchor-lang = "0.17.0"
-gumdrop = { version = "0.8.0", features = ["default_expr"] }
+clap = "3.0.0-beta.4"
 rusqlite = "0.26.0"
 solana-client = "1.7.0"
 solana-account-decoder = "1.7.11"

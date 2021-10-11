@@ -53,12 +53,8 @@ struct FetchOpts {
     help: bool,
 }
 
-fn fetch_tokens_by_update_authority() {
-    let default_rpc = "https://api.mainnet-beta.solana.com\n".to_owned();
-    println!("Fetching 'GRIM' on {} ", default_rpc);
-    // Setup Communication with a Solana node over RPC.
-    // TODO: break this out to it's own fn
-    let client = RpcClient::new(default_rpc);
+// build rpc network configuration
+fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
     let cfg = RpcProgramAccountsConfig {
         account_config: RpcAccountInfoConfig {
             encoding: Some(UiAccountEncoding::Base64Zstd),
@@ -66,14 +62,25 @@ fn fetch_tokens_by_update_authority() {
         },
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
             offset: 1,
-            bytes: MemcmpEncodedBytes::Binary(GRIM_UPDATE_AUTHORITY_PUB_KEY.to_string()),
+            bytes: MemcmpEncodedBytes::Binary(query_key.to_string()),
             encoding: None,
         })]),
         ..RpcProgramAccountsConfig::default()
     };
+    cfg
+}
+
+fn fetch_tokens_by_update_authority(
+    rpc_network: String,
+    program_key: &str,
+    update_authority: &str,
+) {
+    // Setup Communication with a Solana node over RPC.
+    let client = RpcClient::new(rpc_network);
+    let cfg = build_rpc_cfg(&update_authority);
+    let pubkey = &program_key.parse().unwrap();
 
     // Metaplex Token Metadata Program Public Key
-    let pubkey = &METAPLEX_PUB_KEY.parse().unwrap();
     let metadata_accounts = client
         .get_program_accounts_with_config(pubkey, cfg)
         .expect("could not get program accounts");
@@ -140,12 +147,20 @@ fn main() {
     // If there's an error or the user requests help,
     // the process will exit after giving the appropriate response.
     let app_options = AppOptions::parse_args_default_or_exit();
+    let default_rpc = "https://api.mainnet-beta.solana.com".to_owned();
+    // matchy matchy
     match app_options.clone().command {
         Some(command) => match command {
             Command::Fetch(_app_options) => {
-                fetch_tokens_by_update_authority();
+                // TODO: add option to change this
+                fetch_tokens_by_update_authority(
+                    default_rpc,
+                    METAPLEX_PUB_KEY,
+                    GRIM_UPDATE_AUTHORITY_PUB_KEY,
+                );
             }
         },
+        // Default condition
         None => println!("Agent! You forgot to supply a command!"),
     }
 }

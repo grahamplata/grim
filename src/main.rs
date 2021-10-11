@@ -9,7 +9,6 @@ use solana_transaction_status::UiTransactionEncoding;
 
 // build rpc network configuration
 fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
-    
     RpcProgramAccountsConfig {
         account_config: RpcAccountInfoConfig {
             encoding: Some(UiAccountEncoding::Base64Zstd),

@@ -90,11 +90,13 @@ fn fetch_tokens_by_update_authority(app_options: AppOptions, command_opts: Fetch
     let cfg = build_rpc_cfg(&update_authority);
     let pubkey = &app_options.program_id.parse().unwrap();
 
+    println!("Starting fetch on {} using {}", pubkey, update_authority);
     // Metaplex Token Metadata Program Public Key
     let metadata_accounts = client
         .get_program_accounts_with_config(pubkey, cfg)
         .expect("could not get program accounts");
 
+    println!("Found {} metadata_accounts\n", metadata_accounts.len());
     for (metadata_address, _account) in metadata_accounts {
         let sigs = client.get_signatures_for_address(&metadata_address);
         if let Err(err) = sigs {

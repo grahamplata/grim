@@ -9,15 +9,11 @@ name: Continuous integration
 
 on:
   pull_request:
-    branches:
-      - master
-    paths:
-      - "!README.md"
   push:
     branches:
       - master
-    paths:
-      - "!README.md"
+    paths-ignore:
+      - "**/README.md"
 
 # A map of default settings that will apply to all jobs in the workflow.
 defaults:

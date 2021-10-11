@@ -9,7 +9,8 @@ use solana_transaction_status::UiTransactionEncoding;
 
 // build rpc network configuration
 fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
-    let cfg = RpcProgramAccountsConfig {
+    
+    RpcProgramAccountsConfig {
         account_config: RpcAccountInfoConfig {
             encoding: Some(UiAccountEncoding::Base64Zstd),
             ..RpcAccountInfoConfig::default()
@@ -20,8 +21,7 @@ fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
             encoding: None,
         })]),
         ..RpcProgramAccountsConfig::default()
-    };
-    cfg
+    }
 }
 
 fn fetch_tokens_by_update_authority() {
@@ -32,7 +32,7 @@ fn fetch_tokens_by_update_authority() {
         .parse()
         .unwrap();
     let client = RpcClient::new(rpc_network.to_owned());
-    let cfg = build_rpc_cfg(&update_authority);
+    let cfg = build_rpc_cfg(update_authority);
 
     println!(
         "Querying Program: {}\nUpdate Authority: {}\nSolana: {}\n",
@@ -56,7 +56,7 @@ fn fetch_tokens_by_update_authority() {
             eprintln!("\ntoo many sigs {} {}", pubkey, sigs.len());
             continue;
         }
-        if sigs.len() < 1 {
+        if sigs.is_empty() {
             eprintln!("\nnot enough sigs {} {}", pubkey, sigs.len());
             continue;
         }
@@ -73,7 +73,7 @@ fn fetch_tokens_by_update_authority() {
 
         let tx = tx.unwrap().transaction;
         let tx = tx.transaction.decode();
-        if let None = tx {
+        if tx.is_none() {
             eprintln!("\ncould not decode sig tx {} {}", pubkey, sig);
             continue;
         }
@@ -90,7 +90,7 @@ fn fetch_tokens_by_update_authority() {
         }
 
         let token_address = msg.account_keys.get(1);
-        if let None = token_address {
+        if token_address.is_none() {
             eprintln!("\ncouldn't get token address {}", sig);
             continue;
         }

@@ -108,46 +108,25 @@ fn main() {
         .about("CLI tool to explore the Grim Syndicate and Ethereal Transit Authority ecosystem.")
         .license("MIT")
         .subcommand(
-            App::new("fetch")
-                .about("fetch token addresses")
-                .arg(
-                    Arg::new("addresses")
-                        .short('a')
-                        .long("addresses")
-                        .about("lists all token addresses"),
-                )
-                .arg(
-                    Arg::new("metadata")
-                        .short('m')
-                        .long("metadata")
-                        .about("lists all token metadata"),
-                ),
+            App::new("fetch").about("fetch token addresses").arg(
+                Arg::new("addresses")
+                    .short('a')
+                    .long("addresses")
+                    .about("lists all token addresses"),
+            ),
         )
         .subcommand(App::new("watch").about("follow market movement on supported platforms"))
         .subcommand(App::new("floor").about("get the floor price"))
         .subcommand(App::new("community").about("fetch community info"))
         .get_matches();
 
-    // Check for the existence of subcommands, and if found use their matches just as you would the top level app
-    if let Some(matches) = matches.subcommand_matches("fetch") {
-        if matches.is_present("addresses") {
-            fetch_tokens_by_update_authority();
-        } else if matches.is_present("metadata") {
-            println!("Printing metadata...");
-        } else {
-            println!("Agent! You forgot to supply a command!");
-        }
-    }
-
-    if let Some(_matches) = matches.subcommand_matches("community") {
-        println!("fetching community info...");
-    }
-
-    if let Some(_matches) = matches.subcommand_matches("floor") {
-        println!("fetching floor...");
-    }
-
-    if let Some(_matches) = matches.subcommand_matches("watch") {
-        println!("starting watch...");
+    // Check for the existence of subcommands
+    match matches.subcommand_name() {
+        Some("fetch") => fetch_tokens_by_update_authority(),
+        Some("community") => println!("fetching community info..."),
+        Some("floor") => println!("fetching token floor..."),
+        Some("watch") => println!("starting watch..."),
+        None => println!("Agent! You forgot to supply a command!"),
+        _ => println!("Instructions unclear! Try something else!"),
     }
 }

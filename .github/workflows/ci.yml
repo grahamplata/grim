@@ -4,15 +4,10 @@
 # https://github.com/actions-rs/meta/blob/master/recipes/quickstart.md
 
 on:
+  pull_request:
   push:
     branches:
       - master
-  pull_request:
-    paths-ignore:
-      - "docs/**"
-      - "README.md"
-      - ".gitignore"
-      - ".github/**"
 
 name: Continuous integration
 

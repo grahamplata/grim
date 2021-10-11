@@ -7,14 +7,6 @@ use solana_client::{
 };
 use solana_transaction_status::UiTransactionEncoding;
 
-// Constants are declared outside all other scopes.
-// TODO: Move into external config
-// TODO: Maybe extend it to other projects?
-// METAPLEX_PUB_KEY is key reference to the Solana PROGRAM ID
-const METAPLEX_PUB_KEY: &str = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
-// GRIM_UPDATE_AUTHORITY is key reference to a GRIM Syndicate update authority
-const GRIM_UPDATE_AUTHORITY_PUB_KEY: &str = "Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf";
-
 // Define options for the program.
 #[derive(Clone, Debug, Options)]
 struct AppOptions {
@@ -24,6 +16,19 @@ struct AppOptions {
     help: bool,
     #[options(help = "be verbose")]
     verbose: bool,
+    #[options(
+        help = "rpc network",
+        meta = "RPC",
+        default = "https://api.mainnet-beta.solana.com"
+    )]
+    rpc_url: String,
+    // METAPLEX_PUB_KEY is key reference to the Solana PROGRAM ID
+    #[options(
+        help = "program id",
+        meta = "metaplex",
+        default = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+    )]
+    program_id: String,
     // The `command` option will delegate option parsing to the command type,
     // starting at the first free argument.
     #[options(command)]
@@ -42,7 +47,7 @@ enum Command {
     // hyphen-separated name; e.g. `FooBar` becomes `foo-bar`.
     //
     // Names can be explicitly specified using `#[options(name = "...")]`
-    #[options(help = "fetch 'GRIM' token addresses")]
+    #[options(help = "fetch token addresses")]
     Fetch(FetchOpts),
 }
 
@@ -51,6 +56,13 @@ enum Command {
 struct FetchOpts {
     #[options(help = "print help message")]
     help: bool,
+    // GRIM_UPDATE_AUTHORITY is key reference to a GRIM Syndicate update authority
+    #[options(
+        help = "update authority address",
+        meta = "grims",
+        default = "Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf"
+    )]
+    update_authority: String,
 }
 
 // build rpc network configuration
@@ -70,15 +82,13 @@ fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
     cfg
 }
 
-fn fetch_tokens_by_update_authority(
-    rpc_network: String,
-    program_key: &str,
-    update_authority: &str,
-) {
+fn fetch_tokens_by_update_authority(app_options: AppOptions, command_opts: FetchOpts) {
     // Setup Communication with a Solana node over RPC.
+    let rpc_network = app_options.rpc_url.to_owned();
+    let update_authority = command_opts.update_authority;
     let client = RpcClient::new(rpc_network);
     let cfg = build_rpc_cfg(&update_authority);
-    let pubkey = &program_key.parse().unwrap();
+    let pubkey = &app_options.program_id.parse().unwrap();
 
     // Metaplex Token Metadata Program Public Key
     let metadata_accounts = client
@@ -92,7 +102,6 @@ fn fetch_tokens_by_update_authority(
             continue;
         }
 
-        // TODO: this will vary per project and should be config
         let sigs = sigs.unwrap();
         if sigs.len() >= 1000 {
             eprintln!("\ntoo many sigs {} {}", pubkey, sigs.len());
@@ -106,6 +115,7 @@ fn fetch_tokens_by_update_authority(
         let sig = sigs.last().unwrap();
         let sig = sig.signature.parse().unwrap();
 
+        // Returns transaction details for a confirmed transaction
         let tx = client.get_transaction(&sig, UiTransactionEncoding::Base58);
         if let Err(err) = tx {
             eprintln!("\ncouldn't get transaction {} {}", sig, err);
@@ -147,17 +157,10 @@ fn main() {
     // If there's an error or the user requests help,
     // the process will exit after giving the appropriate response.
     let app_options = AppOptions::parse_args_default_or_exit();
-    let default_rpc = "https://api.mainnet-beta.solana.com".to_owned();
-    // matchy matchy
     match app_options.clone().command {
         Some(command) => match command {
-            Command::Fetch(_app_options) => {
-                // TODO: add option to change this
-                fetch_tokens_by_update_authority(
-                    default_rpc,
-                    METAPLEX_PUB_KEY,
-                    GRIM_UPDATE_AUTHORITY_PUB_KEY,
-                );
+            Command::Fetch(command_options) => {
+                fetch_tokens_by_update_authority(app_options, command_options);
             }
         },
         // Default condition

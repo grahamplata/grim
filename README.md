@@ -86,41 +86,44 @@ Use this tool to query the **Ethereal Transit Authority** **(ETA)**.
 ### Help
 
 ```bash
-grim --help
-Usage: target/debug/grim [OPTIONS]
+eta help
+eta 0.1.1
 
-Optional arguments:
-  -h, --help                 print help message
-  -v, --verbose              be verbose
-  -r, --rpc-url RPC          rpc network (default: https://api.mainnet-beta.solana.com)
-  -p, --program-id metaplex  program id (default: metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s)
+Graham Plata <graham.plata@gmail.com>
 
-Available commands:
-  fetch  fetch token addresses
+CLI tool to explore the Grim Syndicate and Ethereal Transit Authority ecosystem.
+
+USAGE:
+    eta [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+
+SUBCOMMANDS:
+    community    fetch community info
+    fetch        fetch token addresses
+    floor        get the floor price
+    help         Print this message or the help of the given subcommand(s)
+    watch        follow market movement on supported platforms
 ```
 
 ### Fetch
 
 ```bash
-grims fetch --help
-Usage: target/debug/grim fetch [OPTIONS]
+eta fetch
+Querying Program: metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s
+Update Authority: Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf
+Solana: https://api.mainnet-beta.solana.com
 
-Optional arguments:
-  -h, --help  print help message
-  -u, --update-authority grims
-              update authority address (default: Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf)
-```
-
-```bash
-grims fetch
-Starting fetch on metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s using Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf
 Found 10000 metadata_accounts
 
-EZJjAPxKhe4c7Xs1kfLBmwKqnY9owmXihVg2DciiMjrY
-8FdMo6dk8CFj1cYN2FoAXEZjHhNP1jcXhn9QbwUEbtaH
-B2CAP934Qdive3WQtzMDfYP3YNhmQHQ8sVJEeBrrUi4j
-6iAM7CH2KgsnNLHhpEj1VghBRfK5N3v8Ki4SmWN6P4Da
-HM5F5Vm28jvfUzpQTj5kMJPPdHrWYQZryPDutrhqmR76
+4dy7e5E2sDvqgF1GDbuMhcnJxF9iTFbH7JLebUXVmm9j
+9yCuE87ZZr82V7gYWhfbkRPn1bnw82eZfhVxYcLSexRP
+2uwD9VggndRrYfjoCN9iSMNJJMGtvkr1EA96As2zSrbA
+9MZnGJfeDqJ8vDoEbWRRZKJzRxTBn6xUXZGtoTt5frve
+7nRhZg1ecKFU5zzN9gbvRLvDwCFJKtpsXP2cmdjtdkHT
+...
 ```
 
 ## Personal Goals

@@ -12,6 +12,8 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - "**/README.md"
 
 # A map of default settings that will apply to all jobs in the workflow.
 defaults:

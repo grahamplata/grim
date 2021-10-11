@@ -7,6 +7,7 @@ A simple CLI tool to explore the [Grim Syndicate](https://grimsyndicate.com/) an
 - [Grim Syndicate CLI](#grim-syndicate-cli)
   - [What’s The Grim Syndicate?](#whats-the-grim-syndicate)
     - [Links](#links)
+  - [Todos](#todos)
   - [Prerequisites](#prerequisites)
   - [Install](#install)
   - [Usage](#usage)
@@ -31,6 +32,23 @@ PS... Don't forget your [ID badge!](https://grimsyndicate.id/)
 - [Website](https://grimsyndicate.com/)
 - [Twitter](https://twitter.com/Grim__Syndicate)
 - [Discord](https://discord.gg/xeHPSUhUv7)
+
+## Todos
+
+- Add external configuration ~ `$HOME/.config/grims`
+- Commands
+  - `community` - community info
+    - `wallet` - get community wallet history
+    - `holders` - count of distinct `'GRIM'` holders
+  - `floor` - get the floor price of `'GRIM'` by `--filter` or `--all`
+  - `watch` - follow market movement on supported platforms by `--filter` or `--all`
+    - [magiceden.com](https://magiceden.io/)
+    - [digitaleyes.market](digitaleyes.market/)
+    - [solanart.io](https://solanart.io/)
+    - [ftx.us](https://ftx.us/nfts)
+- Add support for upcoming [**Lurkers of the Abyss**](https://twitter.com/TheOtherSpy/status/1447420722456907776?s=20)
+  - Daemons
+  - 300 Doom Chalices
 
 ## Prerequisites
 

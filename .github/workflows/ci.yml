@@ -8,6 +8,11 @@ on:
     branches:
       - master
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "README.md"
+      - ".gitignore"
+      - ".github/**"
 
 name: Continuous integration
 

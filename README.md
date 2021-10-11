@@ -1,4 +1,6 @@
-# Grim Syndicate CLI
+# A Grim Syndicate CLI
+
+> Standard issue Ethereal Transit Authority Toolbelt
 
 A simple CLI tool to explore the [Grim Syndicate](https://grimsyndicate.com/) and Ethereal Transit Authority ecosystem.
 

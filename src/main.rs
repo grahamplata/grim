@@ -127,6 +127,6 @@ fn main() {
         Some("floor") => println!("fetching token floor..."),
         Some("watch") => println!("starting watch..."),
         None => println!("Agent! You forgot to supply a command!"),
-        _ => println!("Instructions unclear! Try something else!"),
+        _ => println!("error code 6969, probably nothing"),
     }
 }

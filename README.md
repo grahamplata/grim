@@ -40,6 +40,11 @@ PS... Don't forget your [ID badge!](https://grimsyndicate.id/)
 # - https://forge.rust-lang.org/infra/other-installation-methods.html
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Solana on linux
+# https://github.com/solana-labs/solana#1-install-rustc-cargo-and-rustfmt
+sudo apt-get update
+sudo apt-get install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make
 ```
 
 ## Install

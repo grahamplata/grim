@@ -64,24 +64,40 @@ Use this tool to query the **Ethereal Transit Authority** **(ETA)**.
 
 ```bash
 grim --help
-Usage: grim [OPTIONS]
+Usage: target/debug/grim [OPTIONS]
 
 Optional arguments:
-  -h, --help     print help message
-  -v, --verbose  be verbose
+  -h, --help                 print help message
+  -v, --verbose              be verbose
+  -r, --rpc-url RPC          rpc network (default: https://api.mainnet-beta.solana.com)
+  -p, --program-id metaplex  program id (default: metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s)
 
 Available commands:
-  fetch  fetch 'GRIM' tokens
+  fetch  fetch token addresses
 ```
 
 ### Fetch
 
 ```bash
-grim fetch
-Fetching 'GRIM' on https://api.mainnet-beta.solana.com
-9vDQ3yRoZJAiy2nrksWawnQzHB2TRd8Tvzp9A4VFWaaZ
-C1TVanivQMcwnpbfL34VqNmrDd7kZSGai8Z3LVvfFxgN
-7bTLUnhkaRWzF5y2pDf9JMwMXHxBL2jg5M6PAexqULYZ
+grims fetch --help
+Usage: target/debug/grim fetch [OPTIONS]
+
+Optional arguments:
+  -h, --help  print help message
+  -u, --update-authority grims
+              update authority address (default: Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf)
+```
+
+```bash
+grims fetch
+Starting fetch on metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s using Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf
+Found 10000 metadata_accounts
+
+EZJjAPxKhe4c7Xs1kfLBmwKqnY9owmXihVg2DciiMjrY
+8FdMo6dk8CFj1cYN2FoAXEZjHhNP1jcXhn9QbwUEbtaH
+B2CAP934Qdive3WQtzMDfYP3YNhmQHQ8sVJEeBrrUi4j
+6iAM7CH2KgsnNLHhpEj1VghBRfK5N3v8Ki4SmWN6P4Da
+HM5F5Vm28jvfUzpQTj5kMJPPdHrWYQZryPDutrhqmR76
 ```
 
 ## Personal Goals

@@ -7,14 +7,6 @@ use solana_client::{
 };
 use solana_transaction_status::UiTransactionEncoding;
 
-// Constants are declared outside all other scopes.
-// TODO: Move into external config
-// TODO: Maybe extend it to other projects?
-// METAPLEX_PUB_KEY is key reference to the Solana PROGRAM ID
-const METAPLEX_PUB_KEY: &str = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
-// GRIM_UPDATE_AUTHORITY is key reference to a GRIM Syndicate update authority
-const GRIM_UPDATE_AUTHORITY_PUB_KEY: &str = "Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf";
-
 // Define options for the program.
 #[derive(Clone, Debug, Options)]
 struct AppOptions {
@@ -24,6 +16,19 @@ struct AppOptions {
     help: bool,
     #[options(help = "be verbose")]
     verbose: bool,
+    #[options(
+        help = "rpc network",
+        meta = "RPC",
+        default = "https://api.mainnet-beta.solana.com"
+    )]
+    rpc_url: String,
+    // METAPLEX_PUB_KEY is key reference to the Solana PROGRAM ID
+    #[options(
+        help = "program id",
+        meta = "metaplex",
+        default = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+    )]
+    program_id: String,
     // The `command` option will delegate option parsing to the command type,
     // starting at the first free argument.
     #[options(command)]
@@ -42,7 +47,7 @@ enum Command {
     // hyphen-separated name; e.g. `FooBar` becomes `foo-bar`.
     //
     // Names can be explicitly specified using `#[options(name = "...")]`
-    #[options(help = "fetch 'GRIM' token addresses")]
+    #[options(help = "fetch token addresses")]
     Fetch(FetchOpts),
 }
 
@@ -51,14 +56,17 @@ enum Command {
 struct FetchOpts {
     #[options(help = "print help message")]
     help: bool,
+    // GRIM_UPDATE_AUTHORITY is key reference to a GRIM Syndicate update authority
+    #[options(
+        help = "update authority address",
+        meta = "grims",
+        default = "Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf"
+    )]
+    update_authority: String,
 }
 
-fn fetch_tokens_by_update_authority() {
-    let default_rpc = "https://api.mainnet-beta.solana.com\n".to_owned();
-    println!("Fetching 'GRIM' on {} ", default_rpc);
-    // Setup Communication with a Solana node over RPC.
-    // TODO: break this out to it's own fn
-    let client = RpcClient::new(default_rpc);
+// build rpc network configuration
+fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
     let cfg = RpcProgramAccountsConfig {
         account_config: RpcAccountInfoConfig {
             encoding: Some(UiAccountEncoding::Base64Zstd),
@@ -66,18 +74,29 @@ fn fetch_tokens_by_update_authority() {
         },
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
             offset: 1,
-            bytes: MemcmpEncodedBytes::Binary(GRIM_UPDATE_AUTHORITY_PUB_KEY.to_string()),
+            bytes: MemcmpEncodedBytes::Binary(query_key.to_string()),
             encoding: None,
         })]),
         ..RpcProgramAccountsConfig::default()
     };
+    cfg
+}
 
+fn fetch_tokens_by_update_authority(app_options: AppOptions, command_opts: FetchOpts) {
+    // Setup Communication with a Solana node over RPC.
+    let rpc_network = app_options.rpc_url.to_owned();
+    let update_authority = command_opts.update_authority;
+    let client = RpcClient::new(rpc_network);
+    let cfg = build_rpc_cfg(&update_authority);
+    let pubkey = &app_options.program_id.parse().unwrap();
+
+    println!("Starting fetch on {} using {}", pubkey, update_authority);
     // Metaplex Token Metadata Program Public Key
-    let pubkey = &METAPLEX_PUB_KEY.parse().unwrap();
     let metadata_accounts = client
         .get_program_accounts_with_config(pubkey, cfg)
         .expect("could not get program accounts");
 
+    println!("Found {} metadata_accounts\n", metadata_accounts.len());
     for (metadata_address, _account) in metadata_accounts {
         let sigs = client.get_signatures_for_address(&metadata_address);
         if let Err(err) = sigs {
@@ -85,7 +104,6 @@ fn fetch_tokens_by_update_authority() {
             continue;
         }
 
-        // TODO: this will vary per project and should be config
         let sigs = sigs.unwrap();
         if sigs.len() >= 1000 {
             eprintln!("\ntoo many sigs {} {}", pubkey, sigs.len());
@@ -99,6 +117,7 @@ fn fetch_tokens_by_update_authority() {
         let sig = sigs.last().unwrap();
         let sig = sig.signature.parse().unwrap();
 
+        // Returns transaction details for a confirmed transaction
         let tx = client.get_transaction(&sig, UiTransactionEncoding::Base58);
         if let Err(err) = tx {
             eprintln!("\ncouldn't get transaction {} {}", sig, err);
@@ -142,10 +161,11 @@ fn main() {
     let app_options = AppOptions::parse_args_default_or_exit();
     match app_options.clone().command {
         Some(command) => match command {
-            Command::Fetch(_app_options) => {
-                fetch_tokens_by_update_authority();
+            Command::Fetch(command_options) => {
+                fetch_tokens_by_update_authority(app_options, command_options);
             }
         },
+        // Default condition
         None => println!("Agent! You forgot to supply a command!"),
     }
 }

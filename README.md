@@ -17,6 +17,7 @@ A simple CLI tool to explore the [Grim Syndicate](https://grimsyndicate.com/) an
   - [Usage](#usage)
     - [Help](#help)
     - [Fetch](#fetch)
+    - [Community](#community)
   - [Personal Goals](#personal-goals)
 
 ---
@@ -91,7 +92,7 @@ Use this tool to query the **Ethereal Transit Authority** **(ETA)**.
 
 ```bash
 eta help
-eta 0.1.1
+eta 0.1.2
 
 Graham Plata <graham.plata@gmail.com>
 
@@ -128,6 +129,13 @@ Found 10000 metadata_accounts
 9MZnGJfeDqJ8vDoEbWRRZKJzRxTBn6xUXZGtoTt5frve
 7nRhZg1ecKFU5zzN9gbvRLvDwCFJKtpsXP2cmdjtdkHT
 ...
+```
+
+### Community
+
+```bash
+eta fetch community --wallet
+SOL Balance ◎: 396.61271622500004
 ```
 
 ## Personal Goals

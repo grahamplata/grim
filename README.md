@@ -1,12 +1,14 @@
 # A Grim Syndicate CLI
 
+[![Continuous integration](https://github.com/grahamplata/grim/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/grahamplata/grim/actions/workflows/ci.yml)
+
 > Standard issue Ethereal Transit Authority Toolbelt
 
 A simple CLI tool to explore the [Grim Syndicate](https://grimsyndicate.com/) and Ethereal Transit Authority ecosystem.
 
 ---
 
-- [Grim Syndicate CLI](#grim-syndicate-cli)
+- [A Grim Syndicate CLI](#a-grim-syndicate-cli)
   - [What’s The Grim Syndicate?](#whats-the-grim-syndicate)
     - [Links](#links)
   - [Todos](#todos)
@@ -15,6 +17,7 @@ A simple CLI tool to explore the [Grim Syndicate](https://grimsyndicate.com/) an
   - [Usage](#usage)
     - [Help](#help)
     - [Fetch](#fetch)
+    - [Community](#community)
   - [Personal Goals](#personal-goals)
 
 ---
@@ -89,7 +92,7 @@ Use this tool to query the **Ethereal Transit Authority** **(ETA)**.
 
 ```bash
 eta help
-eta 0.1.1
+eta 0.1.2
 
 Graham Plata <graham.plata@gmail.com>
 
@@ -126,6 +129,13 @@ Found 10000 metadata_accounts
 9MZnGJfeDqJ8vDoEbWRRZKJzRxTBn6xUXZGtoTt5frve
 7nRhZg1ecKFU5zzN9gbvRLvDwCFJKtpsXP2cmdjtdkHT
 ...
+```
+
+### Community
+
+```bash
+eta fetch community --wallet
+SOL Balance ◎: 396.61271622500004
 ```
 
 ## Personal Goals

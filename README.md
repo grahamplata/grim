@@ -1,12 +1,14 @@
 # A Grim Syndicate CLI
 
+[![Continuous integration](https://github.com/grahamplata/grim/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/grahamplata/grim/actions/workflows/ci.yml)
+
 > Standard issue Ethereal Transit Authority Toolbelt
 
 A simple CLI tool to explore the [Grim Syndicate](https://grimsyndicate.com/) and Ethereal Transit Authority ecosystem.
 
 ---
 
-- [Grim Syndicate CLI](#grim-syndicate-cli)
+- [A Grim Syndicate CLI](#a-grim-syndicate-cli)
   - [What’s The Grim Syndicate?](#whats-the-grim-syndicate)
     - [Links](#links)
   - [Todos](#todos)

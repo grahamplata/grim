@@ -51,6 +51,7 @@ PS... Don't forget your [ID badge!](https://grimsyndicate.id/)
     - [digitaleyes.market](digitaleyes.market/)
     - [solanart.io](https://solanart.io/)
     - [ftx.us](https://ftx.us/nfts)
+    - [alpha.art](https://alpha.art/)
 - Add support for upcoming [**Lurkers of the Abyss**](https://twitter.com/TheOtherSpy/status/1447420722456907776?s=20)
   - Daemons
   - 300 Doom Chalices

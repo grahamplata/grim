@@ -100,6 +100,23 @@ fn fetch_tokens_by_update_authority() {
     }
 }
 
+fn lamports_to_sol(lamports: u64) -> f64 {
+    let rate: f64 = 0.000000001;
+    lamports as f64 * rate
+}
+
+fn fetch_community_wallet_balance() {
+    let rpc_network = "https://api.mainnet-beta.solana.com";
+    let pubkey = &"RTp26f9wY2fXxeWRE7FkS9iVrsuxgdUJfDYH8GgoBH9"
+        .parse()
+        .unwrap();
+    let client = RpcClient::new(rpc_network.to_owned());
+    let account_balance = client
+        .get_balance(pubkey)
+        .expect("could not get account balance");
+    println!("SOL Balance ◎: {}", lamports_to_sol(account_balance));
+}
+
 fn main() {
     let matches = App::new("eta")
         .version(crate_version!())
@@ -114,15 +131,22 @@ fn main() {
                     .about("lists all token addresses"),
             ),
         )
+        .subcommand(
+            App::new("community").about("fetch community info").arg(
+                Arg::new("wallet")
+                    .short('w')
+                    .long("wallet")
+                    .about("fetch community wallet balance"),
+            ),
+        )
         .subcommand(App::new("watch").about("follow market movement on supported platforms"))
         .subcommand(App::new("floor").about("get the floor price"))
-        .subcommand(App::new("community").about("fetch community info"))
         .get_matches();
 
     // Check for the existence of subcommands
     match matches.subcommand_name() {
         Some("fetch") => fetch_tokens_by_update_authority(),
-        Some("community") => println!("fetching community info..."),
+        Some("community") => fetch_community_wallet_balance(),
         Some("floor") => println!("fetching token floor..."),
         Some("watch") => println!("starting watch..."),
         None => println!("Agent! You forgot to supply a command!"),

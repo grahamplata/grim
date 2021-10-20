@@ -66,7 +66,7 @@ fn fetch_arweave_metadata(uri: &str) -> Result<state::Grim, Box<dyn std::error::
 }
 
 fn fetch_token_metadata(mint: &str) {
-    let pubkey = Pubkey::from_str(&mint).expect("msg");
+    let pubkey = Pubkey::from_str(mint).expect("unable to parse mint address key");
     let client = build_rpc_client();
     let account = client
         .get_account(&pubkey)

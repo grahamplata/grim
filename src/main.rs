@@ -1,14 +1,28 @@
-use clap::{crate_version, App, Arg};
+mod state;
+
+use std::{io::Read, str::FromStr};
+
+use anchor_lang::AnchorDeserialize;
+use clap::{crate_authors, crate_version, App, ArgMatches};
 use solana_account_decoder::UiAccountEncoding;
 use solana_client::{
     rpc_client::RpcClient,
     rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
     rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
 };
-use solana_transaction_status::UiTransactionEncoding;
+use solana_program::borsh::try_from_slice_unchecked;
+use solana_sdk::pubkey::Pubkey;
+use solana_sdk::{account::ReadableAccount, native_token::lamports_to_sol};
+use spl_token_metadata::state::Metadata;
 
-// build rpc network configuration
-fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
+// Setup Communication with a Solana node over RPC.
+fn build_rpc_client() -> RpcClient {
+    let rpc_network = state::RPC_NETWORK;
+    RpcClient::new(rpc_network.to_string())
+}
+
+// Setup configuration Rpc Program Accounts Config
+fn build_rpc_client_cfg() -> RpcProgramAccountsConfig {
     RpcProgramAccountsConfig {
         account_config: RpcAccountInfoConfig {
             encoding: Some(UiAccountEncoding::Base64Zstd),
@@ -16,7 +30,7 @@ fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
         },
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
             offset: 1,
-            bytes: MemcmpEncodedBytes::Binary(query_key.to_string()),
+            bytes: MemcmpEncodedBytes::Binary(state::PROGRAM_UPGRADE_AUTHORITY.to_string()),
             encoding: None,
         })]),
         ..RpcProgramAccountsConfig::default()
@@ -24,132 +38,116 @@ fn build_rpc_cfg(query_key: &str) -> RpcProgramAccountsConfig {
 }
 
 fn fetch_tokens_by_update_authority() {
-    // Setup Communication with a Solana node over RPC.
-    let rpc_network = "https://api.mainnet-beta.solana.com";
-    let update_authority = "Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf";
-    let pubkey = &"metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-        .parse()
-        .unwrap();
-    let client = RpcClient::new(rpc_network.to_owned());
-    let cfg = build_rpc_cfg(update_authority);
+    let pubkey = &state::PROGRAM_PUBLIC_KEY
+        .parse::<Pubkey>()
+        .expect("Failed to parse Metaplex Program Id");
+    let client = build_rpc_client();
+    let config = build_rpc_client_cfg();
 
-    println!(
-        "Querying Program: {}\nUpdate Authority: {}\nSolana: {}\n",
-        pubkey, update_authority, rpc_network,
-    );
     // Metaplex Token Metadata Program Public Key
     let metadata_accounts = client
-        .get_program_accounts_with_config(pubkey, cfg)
-        .expect("could not get program accounts");
+        .get_program_accounts_with_config(pubkey, config)
+        .expect("unable to fetch program accounts");
 
     println!("Found {} metadata_accounts\n", metadata_accounts.len());
-    for (metadata_address, _account) in metadata_accounts {
-        let sigs = client.get_signatures_for_address(&metadata_address);
-        if let Err(err) = sigs {
-            eprintln!("\ncould not get signatures {} {:?}", pubkey, err);
-            continue;
-        }
-
-        let sigs = sigs.unwrap();
-        if sigs.len() >= 1000 {
-            eprintln!("\ntoo many sigs {} {}", pubkey, sigs.len());
-            continue;
-        }
-        if sigs.is_empty() {
-            eprintln!("\nnot enough sigs {} {}", pubkey, sigs.len());
-            continue;
-        }
-
-        let sig = sigs.last().unwrap();
-        let sig = sig.signature.parse().unwrap();
-
-        // Returns transaction details for a confirmed transaction
-        let tx = client.get_transaction(&sig, UiTransactionEncoding::Base58);
-        if let Err(err) = tx {
-            eprintln!("\ncouldn't get transaction {} {}", sig, err);
-            continue;
-        }
-
-        let tx = tx.unwrap().transaction;
-        let tx = tx.transaction.decode();
-        if tx.is_none() {
-            eprintln!("\ncould not decode sig tx {} {}", pubkey, sig);
-            continue;
-        }
-
-        let tx = tx.unwrap();
-        let msg = tx.message();
-        if msg.instructions.len() != 5 {
-            eprintln!(
-                "\ninvalid instruction count {} {}",
-                pubkey,
-                msg.instructions.len()
-            );
-            continue;
-        }
-
-        let token_address = msg.account_keys.get(1);
-        if token_address.is_none() {
-            eprintln!("\ncouldn't get token address {}", sig);
-            continue;
-        }
-
-        let token_address = token_address.unwrap();
-
-        println!("{}", token_address);
+    for (_, account) in metadata_accounts {
+        let metadata: Metadata = try_from_slice_unchecked(&account.data)
+            .expect("unable to get mint address from account");
+        println!("{}", metadata.mint.to_string());
     }
 }
 
-fn lamports_to_sol(lamports: u64) -> f64 {
-    let rate: f64 = 0.000000001;
-    lamports as f64 * rate
+fn fetch_arweave_metadata(uri: &str) -> Result<state::Grim, Box<dyn std::error::Error>> {
+    let mut res = reqwest::blocking::get(uri)?;
+    let mut body = String::new();
+    res.read_to_string(&mut body)?;
+    let deserialized: state::Grim = serde_json::from_str(&body).unwrap();
+    Ok(deserialized)
 }
 
+fn fetch_token_metadata(mint: &str) {
+    let pubkey = Pubkey::from_str(mint).expect("unable to parse mint address key");
+    let client = build_rpc_client();
+    let account = client
+        .get_account(&pubkey)
+        .expect("could not fetch metadata account");
+
+    let mut buf = account.data();
+    let metadata = Metadata::deserialize(&mut buf).expect("could not deserialize metadata");
+    println!("Name: {}", metadata.data.name);
+    println!("Symbol: {}", metadata.data.symbol);
+    println!("Metadata: {}", metadata.data.uri);
+    println!("Update Authority: {}", metadata.update_authority);
+    println!("Key: {:?}", metadata.key);
+    println!("Mint: {}", metadata.mint);
+    println!("Primary Sale Happened: {}", metadata.primary_sale_happened);
+    println!("Mutable: {}", metadata.is_mutable);
+    let grim = fetch_arweave_metadata(&metadata.data.uri).expect("unable to fetch metadata");
+    println!("{:#?}", grim);
+}
+
+// Community
 fn fetch_community_wallet_balance() {
-    let rpc_network = "https://api.mainnet-beta.solana.com";
-    let pubkey = &"RTp26f9wY2fXxeWRE7FkS9iVrsuxgdUJfDYH8GgoBH9"
-        .parse()
-        .unwrap();
-    let client = RpcClient::new(rpc_network.to_owned());
+    let pubkey = &state::COMMUNITY_WALLET_PUBLIC_KEY.parse().unwrap();
+    let client = build_rpc_client();
     let account_balance = client
         .get_balance(pubkey)
         .expect("could not get account balance");
-    println!("SOL Balance ◎: {}", lamports_to_sol(account_balance));
+    println!("'GRIM' S◎L Balance: {}", lamports_to_sol(account_balance));
 }
 
+// Command responses
+fn handle_command_none() {
+    println!("Agent! You forgot to supply a command!")
+}
+
+fn handle_unreachable_command() {
+    println!("error code 6969, probably nothing")
+}
+
+// Command matching
+fn handle_command_matches(matches: ArgMatches) {
+    match matches.subcommand() {
+        Some(("fetch", fetch_matches)) => match fetch_matches.subcommand() {
+            Some(("metadata", val)) => fetch_token_metadata(val.value_of("metadata").unwrap()),
+            Some(("tokens", _)) => fetch_tokens_by_update_authority(),
+            None => handle_command_none(),
+            _ => handle_unreachable_command(),
+        },
+        Some(("community", community_matches)) => match community_matches.subcommand() {
+            Some(("wallet", _)) => fetch_community_wallet_balance(),
+            Some(("holders", _)) => println!("fetching community holders..."),
+            None => handle_command_none(),
+            _ => handle_unreachable_command(),
+        },
+        Some(("floor", _floor_matches)) => println!("fetching token floor..."),
+        Some(("watch", _watch_matches)) => println!("starting watch..."),
+        None => handle_command_none(),
+        _ => handle_unreachable_command(),
+    }
+}
+
+// main
 fn main() {
     let matches = App::new("eta")
         .version(crate_version!())
-        .author("Graham Plata <graham.plata@gmail.com>")
+        .author(crate_authors!())
         .about("CLI tool to explore the Grim Syndicate and Ethereal Transit Authority ecosystem.")
         .license("MIT")
         .subcommand(
-            App::new("fetch").about("fetch token addresses").arg(
-                Arg::new("addresses")
-                    .short('a')
-                    .long("addresses")
-                    .about("lists all token addresses"),
-            ),
+            App::new("fetch")
+                .about("fetch all token addresses")
+                .subcommand(App::new("metadata").about("fetch metadata"))
+                .subcommand(App::new("tokens").about("fetches all token addresses")),
         )
         .subcommand(
-            App::new("community").about("fetch community info").arg(
-                Arg::new("wallet")
-                    .short('w')
-                    .long("wallet")
-                    .about("fetch community wallet balance"),
-            ),
+            App::new("community")
+                .about("fetch community info")
+                .subcommand(App::new("wallet").about("fetch community wallet balance"))
+                .subcommand(App::new("holders").about("fetch token holders")),
         )
         .subcommand(App::new("watch").about("follow market movement on supported platforms"))
         .subcommand(App::new("floor").about("get the floor price"))
         .get_matches();
-
-    // Check for the existence of subcommands
-    match matches.subcommand_name() {
-        Some("fetch") => fetch_tokens_by_update_authority(),
-        Some("community") => fetch_community_wallet_balance(),
-        Some("floor") => println!("fetching token floor..."),
-        Some("watch") => println!("starting watch..."),
-        None => println!("Agent! You forgot to supply a command!"),
-        _ => println!("error code 6969, probably nothing"),
-    }
+    handle_command_matches(matches);
 }

@@ -12,8 +12,9 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - "**/README.md"
+    paths:
+      - "rust/**"
+      - "!rust/README.md"
 
 # A map of default settings that will apply to all jobs in the workflow.
 defaults:

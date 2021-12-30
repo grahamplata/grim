@@ -20,7 +20,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: rust
+    working-directory: ./rust
 
 # ###
 # Workflow run and it's job components.

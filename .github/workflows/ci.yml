@@ -20,7 +20,6 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ./rust
 
 # ###
 # Workflow run and it's job components.
@@ -38,6 +37,7 @@ jobs:
           toolchain: stable
           override: true
       - run: sudo apt-get install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make
+      - run: cd ./rust
       - uses: actions-rs/cargo@v1
         with:
           command: check
@@ -54,6 +54,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+      - run: cd ./rust
       - uses: actions-rs/cargo@v1
         with:
           command: test
@@ -70,6 +71,7 @@ jobs:
           toolchain: stable
           override: true
       - run: rustup component add rustfmt
+      - run: cd ./rust
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
@@ -88,6 +90,7 @@ jobs:
           override: true
       - run: sudo apt-get install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make
       - run: rustup component add clippy
+      - run: cd ./rust
       - uses: actions-rs/cargo@v1
         with:
           command: clippy

@@ -5,15 +5,16 @@
 
 # ###
 # Action name
-name: Continuous integration
+name: Rust Continuous integration
 
 on:
   pull_request:
   push:
     branches:
       - master
-    paths-ignore:
-      - "**/README.md"
+    paths:
+      - "rust/**"
+      - "!rust/README.md"
 
 # A map of default settings that will apply to all jobs in the workflow.
 defaults:
@@ -36,6 +37,7 @@ jobs:
           toolchain: stable
           override: true
       - run: sudo apt-get install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make
+      - run: cd ./rust
       - uses: actions-rs/cargo@v1
         with:
           command: check

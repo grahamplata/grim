@@ -4,7 +4,7 @@
 
 ---
 
-- [A Grim Syndicate CLI](#a-grim-syndicate-cli)
+- [ETA Multitool - A Grim Syndicate CLI](#eta-multitool---a-grim-syndicate-cli)
   - [What’s The Grim Syndicate?](#whats-the-grim-syndicate)
     - [Links](#links)
   - [ETA Tool](#eta-tool)
@@ -82,4 +82,4 @@ INFO[0051] got token address                             index=0 public_key=Aivb
 
 ### Why is there a Rust Folder?
 
-> I originally started with rust to tinker. If you are still interested the code lives here: [Link](./rust/README.md)
+> I originally started with rust to tinker. If you are still interested the code lives here: [Link](./deprecated/rust/README.md)

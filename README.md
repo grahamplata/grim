@@ -54,6 +54,15 @@ go build -o eta -v .
 ### Usage
 
 ```bash
+# Sample Output
+go run main.go constants.go
+INFO[0000] logger using development config               environment=development
+INFO[0000] solana rpc client initialized                 endpoint="https://api.mainnet-beta.solana.com"
+INFO[0000] fetching program accounts                     metaplex_program_key=metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s update_authority_key=Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf
+INFO[0051] got program accounts                          count=19405
+INFO[0051] fetching signatures for address               index=0 public_key=AivbYVPoPRX7WuEkba5cjonJQKzno1xpizPbNpSafB7n
+INFO[0051] got address signatures                        count=10 genesis_signature=4nK456176oH1RaaVqfz7s4QmcwFKgphB45uWkdHjX7v8JUijrQ7cZXejh13nzJ8MXZx2AYAoUsT9z57HFz1oMMzM index=0 public_key=AivbYVPoPRX7WuEkba5cjonJQKzno1xpizPbNpSafB7n
+INFO[0051] got token address                             index=0 public_key=AivbYVPoPRX7WuEkba5cjonJQKzno1xpizPbNpSafB7n token_address=Dnsu6Doj86Yng64ZQrCNRQ2kHZoXFAs5qnKtRQXSgNPP
 
 ```
 

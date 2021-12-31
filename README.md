@@ -1,4 +1,4 @@
-# A Grim Syndicate CLI
+# ETA Multitool - A Grim Syndicate CLI
 
 [![Continuous integration](https://github.com/grahamplata/grim/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/grahamplata/grim/actions/workflows/ci.yml)
 

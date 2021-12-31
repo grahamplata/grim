@@ -4,7 +4,9 @@ package main
 
 const (
 	// The Candy Machine is a Solana Program designed to reliably sell one NFT at a time.
-	// ref: https://www.metaplex.com/
+	//
+	// ref: https://www.metaplex.com/ Website
+	// 		https://explorer.solana.com/address/metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s Token Metadata Program
 	//
 	// Metaplex Candy Machine program
 	MetaPlexProgramKey string = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"

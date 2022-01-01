@@ -27,7 +27,7 @@
 # What’s The Grim Syndicate?
 
 <p align="center">
-  <img style="max-width:146px;" src="./docs/318.jpg" />
+  <img style="max-width:150px;" src="./docs/318.jpg" />
 </p>
 <p align="center">
   10,000 generative NFTs on the #Solana blockchain.
@@ -36,9 +36,6 @@
 > The Grim Syndicate are an elite collective responsible for ferrying fickle Souls from across the dimensional spectrum (even those hard-to-reach pocket universes) to arrive at their final destination. At the Ethereal Transit Authority death doesn't have to mean a dead-end. -- https://grimsyndicate.com/
 
 PS... Don't forget your [ID badge!](https://grimsyndicate.id/)
-
-<p align="center">
-</p>
 
 ## Links
 

@@ -1,6 +1,4 @@
-package main
-
-// Constants
+package config
 
 const (
 	// The Candy Machine is a Solana Program designed to reliably sell one NFT at a time.

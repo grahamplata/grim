@@ -5,19 +5,23 @@
 ---
 
 - [ETA Multitool - A Grim Syndicate CLI](#eta-multitool---a-grim-syndicate-cli)
-  - [What’s The Grim Syndicate?](#whats-the-grim-syndicate)
-    - [Links](#links)
-  - [ETA Tool](#eta-tool)
-    - [Setup](#setup)
-    - [Usage](#usage)
-    - [Configuration](#configuration)
-    - [Tree](#tree)
+- [What’s The Grim Syndicate?](#whats-the-grim-syndicate)
+  - [Links](#links)
+- [ETA Tool](#eta-tool)
+  - [Project Setup](#project-setup)
+  - [Usage](#usage)
+  - [Configuration](#configuration)
+  - [Tree](#tree)
+  - [Logging](#logging)
+    - [None](#none)
+    - [Text](#text)
+    - [JSON](#json)
   - [Notes](#notes)
     - [Why is there a Rust Folder?](#why-is-there-a-rust-folder)
 
 ---
 
-## What’s The Grim Syndicate?
+# What’s The Grim Syndicate?
 
 10,000 generative NFTs on the #Solana blockchain.
 
@@ -29,53 +33,95 @@ PS... Don't forget your [ID badge!](https://grimsyndicate.id/)
   <img src="./docs/grim-318.jpg" />
 </p>
 
-### Links
+## Links
 
 - [Website](https://grimsyndicate.com/)
 - [Twitter](https://twitter.com/Grim__Syndicate)
 - [Discord](https://discord.gg/xeHPSUhUv7)
 
-## ETA Tool
+# ETA Tool
 
 > Standard issue Ethereal Transit Authority Toolbelt
 
 A simple CLI tool to explore the [Grim Syndicate](https://grimsyndicate.com/) and Ethereal Transit Authority ecosystem.
 
-### Setup
-
-Build it yourself
+## Project Setup
 
 ```shell
 git clone git@github.com:grahamplata/grim.git
 cd grim
-go build -o eta -v .
+go build -o eta-multitool -v .
 ```
 
-### Usage
+## Usage
 
 ```bash
-# Sample Output
-go run main.go constants.go
-INFO[0000] logger using development config               environment=development
-INFO[0000] solana rpc client initialized                 endpoint="https://api.mainnet-beta.solana.com"
-INFO[0000] fetching program accounts                     metaplex_program_key=metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s update_authority_key=Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf
-INFO[0051] got program accounts                          count=19405
-INFO[0051] fetching signatures for address               index=0 public_key=AivbYVPoPRX7WuEkba5cjonJQKzno1xpizPbNpSafB7n
-INFO[0051] got address signatures                        count=10 genesis_signature=4nK456176oH1RaaVqfz7s4QmcwFKgphB45uWkdHjX7v8JUijrQ7cZXejh13nzJ8MXZx2AYAoUsT9z57HFz1oMMzM index=0 public_key=AivbYVPoPRX7WuEkba5cjonJQKzno1xpizPbNpSafB7n
-INFO[0051] got token address                             index=0 public_key=AivbYVPoPRX7WuEkba5cjonJQKzno1xpizPbNpSafB7n token_address=Dnsu6Doj86Yng64ZQrCNRQ2kHZoXFAs5qnKtRQXSgNPP
+A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.
+
+Usage:
+  eta-multitool [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  fetch       A brief description of your command
+  help        Help about any command
+
+Flags:
+      --config string   config file (default is $HOME/.eta.yaml)
+  -h, --help            help for eta-multitool
+  -o, --output string   output type of the cli (default is ...)
+
+Use "eta-multitool [command] --help" for more information about a command.
+```
+
+## Configuration
+
+```bash
 
 ```
 
-### Configuration
+## Tree
 
 ```bash
 
 ```
 
-### Tree
+## Logging
+
+> Support a wide variety of logging formats for every usecase.
+
+### None
+
+Output as a minimal standard out
 
 ```bash
+# none - eta-multitool fetch
+7k1kyD37tLv528fWSs3wujtHFemwMGmTTxX5dqp8fN1A
+```
 
+### Text
+
+Output as a detailed text filed
+
+```bash
+# text - eta-multitool fetch --output="text"
+INFO[2022-01-01T13:07:43-05:00] logger using text config
+INFO[2022-01-01T13:08:52-05:00] 6SjSBmT2cd1sgS6yqiHVhDroWBE11f72PopyPgkb5AMQ  index=0 public_key=DWviW6d8AK4ksTL9wJvXy8XBqevtGrY5UQgmTRdiQHqd token_address=6SjSBmT2cd1sgS6yqiHVhDroWBE11f72PopyPgkb5AMQ
+```
+
+### JSON
+
+Output as a json object
+
+```bash
+# json - eta-multitool fetch --output="json"
+{"level":"info","msg":"logger using json config","time":"2022-01-01T13:05:46-05:00"}
+{"index":0,"level":"info","msg":"DU6TVCLMYwoomiG2EvY8ECCFvquc5iefwdJbDMYtjr7T","public_key":"3X7HzqxBquHf8Sgqd5Tzi93b3frP74k68JeHAhVTrnNb","time":"2022-01-01T13:06:45-05:00","token_address":"DU6TVCLMYwoomiG2EvY8ECCFvquc5iefwdJbDMYtjr7T"}
 ```
 
 ## Notes

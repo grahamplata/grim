@@ -51,6 +51,8 @@ A simple CLI tool to explore the [Grim Syndicate](https://grimsyndicate.com/) an
 
 ## Project Setup
 
+For most of the project I have intentionally heavily commented as I am still very green when it comes to interacting with the Solana Ecosystem. I tried to keep it as a set of streaming thoughts as I went along. Hopefully someone else finds this useful.
+
 ```shell
 git clone git@github.com:grahamplata/grim.git
 cd grim

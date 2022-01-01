@@ -7,7 +7,7 @@
 - [ETA Multitool - A Grim Syndicate CLI](#eta-multitool---a-grim-syndicate-cli)
 - [What’s The Grim Syndicate?](#whats-the-grim-syndicate)
   - [Links](#links)
-- [ETA Tool](#eta-tool)
+- [ETA Multi-Tool](#eta-multi-tool)
   - [Project Setup](#project-setup)
   - [Usage](#usage)
   - [Configuration](#configuration)
@@ -43,9 +43,9 @@ PS... Don't forget your [ID badge!](https://grimsyndicate.id/)
 - [Twitter](https://twitter.com/Grim__Syndicate)
 - [Discord](https://discord.gg/xeHPSUhUv7)
 
-# ETA Tool
+# ETA Multi-Tool
 
-> Standard issue Ethereal Transit Authority Toolbelt
+> Part of the standard issue Ethereal Transit Authority Toolbelt
 
 A simple CLI tool to explore the [Grim Syndicate](https://grimsyndicate.com/) and Ethereal Transit Authority ecosystem.
 

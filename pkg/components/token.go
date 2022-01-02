@@ -76,32 +76,55 @@ func GetAllMetaplexTokenByAuthority() {
 	// the https://solscan.io/ tool. I attempted to trace the same process via the UI in the following loop.
 
 	// Now that we have a response containing all accounts owned by the program publicKey we need to handle them. (10k+) at the time of writing.
-	for i, value := range resp {
-		logrus.WithFields(logrus.Fields{"index": i, "public_key": value.Pubkey}).Debug("fetching signatures for address")
-
-		// 'Signatures' are lists of all account public keys referenced by a transaction's instructions.
-		// We are interested in this because we want the first Signature
-		//
-		// Given an individual account lets fetch the 'Signatures' from the Account public key
-		sigs, err := client.GetSignaturesForAddress(context.Background(), value.Pubkey)
-		// Handle the error
-		if err != nil {
-			logrus.WithFields(logrus.Fields{"index": i, "error": err, "public_key": value.Pubkey.String()}).Error("unable to get signatures for account public key")
-		}
-		// Get the first 'Signature' when the token would have been created
-		genesis_signature := sigs[len(sigs)-1].Signature
-		logrus.WithFields(logrus.Fields{"index": i, "genesis_signature": genesis_signature, "count": len(sigs), "public_key": value.Pubkey}).Debug("got address signatures")
-
-		// 'Transactions' are instruction(s) signed by a client using one or more keypairs and executed atomically
-		//
-		// Get the 'Transaction' from the Genesis (first) 'Signature' passing in empty/default options
-		tx, err := client.GetTransaction(context.Background(), genesis_signature, &rpc.GetTransactionOpts{})
-		if err != nil {
-			logrus.WithFields(logrus.Fields{"index": i, "error": err, "public_key": value.Pubkey.String()}).Error("unable to get signatures for account public key")
-		}
-		// Parse all 'Account' keys keeping the second entry as that will be our NFT + Metadata Account
-		account_keys := tx.Transaction.GetParsedTransaction().Message.AccountKeys
-		token_address := account_keys[1]
-		logrus.WithFields(logrus.Fields{"index": i, "token_address": token_address, "public_key": value.Pubkey}).Info(token_address)
+	for _, value := range resp {
+		genesis_signature := GetGenesisSignatureForAddress(client, value.Pubkey)
+		token := GetTokenFromTransaction(client, genesis_signature)
+		logrus.WithFields(logrus.Fields{
+			"token_address": token,
+			"public_key":    value.Pubkey},
+		).Info(token)
 	}
+}
+
+// GetTokenFromTransaction
+func GetTokenFromTransaction(client *rpc.Client, gen_sig solana.Signature) solana.PublicKey {
+	// 'Transactions' are instruction(s) signed by a client using one or more keypairs and executed atomically
+	//
+	// Get the 'Transaction' from the Genesis (first) 'Signature' passing in empty/default options
+	tx, err := client.GetTransaction(context.Background(), gen_sig, &rpc.GetTransactionOpts{})
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("unable to get signatures for account public key")
+	}
+	// Parse all 'Account' keys keeping the second entry as that will be our NFT + Metadata Account
+	account_keys := tx.Transaction.GetParsedTransaction().Message.AccountKeys
+	return account_keys[1]
+}
+
+// GetGenesisSignatureForAddress
+func GetGenesisSignatureForAddress(client *rpc.Client, pubkey solana.PublicKey) solana.Signature {
+	logrus.WithFields(logrus.Fields{
+		"public_key": pubkey,
+	}).Debug("fetching signatures for address")
+	// 'Signatures' are lists of all account public keys referenced by a transaction's instructions.
+	// We are interested in this because we want the first Signature
+	//
+	// Given an individual account lets fetch the 'Signatures' from the Account public key
+	sigs, err := client.GetSignaturesForAddress(context.Background(), pubkey)
+	// Handle the error
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error":      err,
+			"public_key": pubkey.String(),
+		}).Error("unable to get signatures for account public key")
+	}
+	// Get the first 'Signature' when the token would have been created
+	genesis_signature := sigs[len(sigs)-1].Signature
+	logrus.WithFields(logrus.Fields{
+		"genesis_signature": genesis_signature,
+		"count":             len(sigs),
+		"public_key":        pubkey,
+	}).Debug("got address signatures")
+	return genesis_signature
 }

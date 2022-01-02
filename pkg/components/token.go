@@ -6,6 +6,7 @@ package components
 import (
 	"context"
 	"eta-multitool/pkg/config"
+	"time"
 
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
@@ -75,27 +76,74 @@ func GetAllMetaplexTokenByAuthority() {
 	// I came to understand the linking of the Solana components much better when I walked through them with
 	// the https://solscan.io/ tool. I attempted to trace the same process via the UI in the following loop.
 
-	// Now that we have a response containing all accounts owned by the program publicKey we need to handle them. (10k+) at the time of writing.
-	for _, value := range resp {
-		genesis_signature := GetGenesisSignatureForAddress(client, value.Pubkey)
-		token := GetTokenFromTransaction(client, genesis_signature)
-		logrus.WithFields(logrus.Fields{
-			"token_address": token,
-			"public_key":    value.Pubkey},
-		).Info(token)
+	// Concurrency Block and https://docs.solana.com/cluster/rpc-endpoints#mainnet-beta
+
+	// length of Program accounts that will need token accounts fetched
+	totalAccounts := len(resp)
+
+	// the number of goroutines that are allowed to run concurrently TODO: move to config
+	maxConcurrentGoroutines := 3
+
+	// GO Channel to coordinate the number of concurrent goroutines.
+	// This channel should be buffered otherwise we will be immediately blocked when trying to fill it.
+	concurrentGoroutines := make(chan struct{}, maxConcurrentGoroutines)
+	// Fill channel with maxNbConcurrentGoroutines empty struct.
+	for i := 0; i < maxConcurrentGoroutines; i++ {
+		concurrentGoroutines <- struct{}{}
 	}
+
+	// done channel indicates when a goroutine has finished its job
+	done := make(chan bool)
+	// waitForAllJobs channel allows the main program to wait until we done all the jobs
+	waitForAllJobs := make(chan bool)
+
+	// Collect all the jobs, and since the job is finished, we can
+	// release another spot for a goroutine.
+	go func() {
+		for i := 0; i < totalAccounts; i++ {
+			<-done
+			// Say that another goroutine can now start.
+			concurrentGoroutines <- struct{}{}
+		}
+		// We have collected all the jobs, the program
+		// can now terminate
+		waitForAllJobs <- true
+	}()
+
+	for i := 1; i < totalAccounts; i++ {
+		// Try to receive from the concurrentGoroutines channel. When we have something, it means we can start a new goroutine because another one finished.
+		// Otherwise, it will block the execution until an execution spot is available.
+		<-concurrentGoroutines
+		go func(i int) {
+			// lazy ratelimit
+			time.Sleep(900 * time.Millisecond)
+			// Now that we have a response containing all accounts owned by the program publicKey we need to handle them. (10k+) at the time of writing.
+			pubkey := resp[i].Pubkey
+			genesis_signature := GetGenesisSignatureForAddress(client, pubkey)
+			token := GetTokenFromTransaction(client, genesis_signature, pubkey)
+			logrus.WithFields(logrus.Fields{
+				"index":         i,
+				"token_address": token,
+				"public_key":    pubkey},
+			).Info(token)
+			done <- true
+		}(i)
+	}
+	// Wait for all jobs to finish
+	<-waitForAllJobs
 }
 
 // GetTokenFromTransaction
-func GetTokenFromTransaction(client *rpc.Client, gen_sig solana.Signature) solana.PublicKey {
+func GetTokenFromTransaction(client *rpc.Client, gen_sig solana.Signature, pubkey solana.PublicKey) solana.PublicKey {
 	// 'Transactions' are instruction(s) signed by a client using one or more keypairs and executed atomically
 	//
 	// Get the 'Transaction' from the Genesis (first) 'Signature' passing in empty/default options
 	tx, err := client.GetTransaction(context.Background(), gen_sig, &rpc.GetTransactionOpts{})
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Error("unable to get signatures for account public key")
+			"error":   err,
+			"pub_key": pubkey.String(),
+		}).Error("unable to get transactions for account public key")
 	}
 	// Parse all 'Account' keys keeping the second entry as that will be our NFT + Metadata Account
 	account_keys := tx.Transaction.GetParsedTransaction().Message.AccountKeys

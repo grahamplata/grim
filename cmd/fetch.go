@@ -29,16 +29,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// fetchCmd represents the fetch command
+// fetchCmd represents the base verb command for fetch keyword
 var fetchCmd = &cobra.Command{
 	Use:   "fetch",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Fetch details",
+	Long:  "",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("eta-multitool fetch")
+	},
+}
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+// tokenCmd token action
+var tokenCmd = &cobra.Command{
+	Use:   "tokens",
+	Short: "Tokens short description",
+	Long:  `Tokens long description`,
 	Run: func(cmd *cobra.Command, args []string) {
 		output, _ := cmd.Flags().GetString("output")
 		config.SetOutput(output)
@@ -46,24 +51,38 @@ to quickly create a Cobra application.`,
 	},
 }
 
+// metadataCmd metadata action
 var metadataCmd = &cobra.Command{
 	Use:   "metadata",
 	Short: "Metadata short description",
 	Long:  `Metadata long description`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("metadata")
+		fmt.Println("eta-multitool fetch metadata")
+	},
+}
+
+// walletCmd metadata action
+var walletCmd = &cobra.Command{
+	Use:   "wallet",
+	Short: "Wallet short description",
+	Long:  `Wallet long description`,
+	Run: func(cmd *cobra.Command, args []string) {
+		output, _ := cmd.Flags().GetString("output")
+		config.SetOutput(output)
+		components.GetWallet()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(fetchCmd)
-	fetchCmd.AddCommand(metadataCmd)
+	fetchCmd.AddCommand(tokenCmd, metadataCmd, walletCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// fetchCmd.PersistentFlags().String("foo", "", "A help for foo")
+	rootCmd.PersistentFlags().String("all", "", "output type of the cli (default is ...)")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

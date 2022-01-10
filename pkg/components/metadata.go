@@ -3,29 +3,17 @@ package components
 import (
 	"context"
 	"eta-multitool/pkg/config"
-	"fmt"
-	"strings"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
 	"github.com/near/borsh-go"
+	"github.com/sirupsen/logrus"
 )
 
 const EDITION_MARKER_BIT_SIZE uint64 = 248
 
 type Key borsh.Enum
-
-const (
-	KeyUninitialized Key = iota
-	KeyEditionV1
-	KeyMasterEditionV1
-	KeyReservationListV1
-	KeyMetadataV1
-	KeyReservationListV2
-	KeyMasterEditionV2
-	KeyEditionMarker
-)
 
 type Creator struct {
 	Address  solana.PublicKey
@@ -51,25 +39,6 @@ type Metadata struct {
 	EditionNonce        *uint8
 }
 
-func MetadataDeserialize(data []byte) (Metadata, error) {
-	var metadata Metadata
-	err := borsh.Deserialize(&metadata, data)
-	if err != nil {
-		return Metadata{}, fmt.Errorf("failed to deserialize data, err: %v", err)
-	}
-	// trim null byte
-	metadata.Data.Name = strings.TrimRight(metadata.Data.Name, "\x00")
-	metadata.Data.Symbol = strings.TrimRight(metadata.Data.Symbol, "\x00")
-	metadata.Data.Uri = strings.TrimRight(metadata.Data.Uri, "\x00")
-	return metadata, nil
-}
-
-type MasterEditionV2 struct {
-	Key       Key
-	Supply    uint64
-	MaxSupply *uint64
-}
-
 // getMetadata
 func getMetadata(mint solana.PublicKey) solana.PublicKey {
 	TokenMetadataProgramID := solana.MustPublicKeyFromBase58(config.MetaPlexProgramKey)
@@ -82,20 +51,34 @@ func getMetadata(mint solana.PublicKey) solana.PublicKey {
 		TokenMetadataProgramID,
 	)
 	if err != nil {
-		panic(err)
+		logrus.WithFields(logrus.Fields{"error": err}).Error("unable to get metadata account")
 	}
 	return addr
 }
 
+func MetadataDeserialize(data []byte) (Metadata, error) {
+	var metadata Metadata
+	err := borsh.Deserialize(&metadata, data)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"error": err}).Error("failed to deserialize data, err")
+	}
+	return metadata, nil
+}
+
 // GetMetadataByAddress
 func GetMetadataByAddress(addr string) {
-	pubKey := solana.MustPublicKeyFromBase58(addr)
-	meta := getMetadata(pubKey)
+	mint := solana.MustPublicKeyFromBase58(addr)
+	metaDataAccount := getMetadata(mint)
 	endpoint := rpc.MainNetBeta_RPC
 	client := rpc.New(endpoint)
-	resp, err := client.GetAccountInfo(context.Background(), meta)
+	resp, err := client.GetAccountInfo(context.Background(), metaDataAccount)
 	if err != nil {
-		println(err)
+		panic(err)
 	}
-	spew.Dump(resp.Value.Data.GetBinary())
+	data := resp.Value.Data.GetBinary()
+	metadata, err := MetadataDeserialize(data)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"error": err}).Error("unable to get metadata")
+	}
+	spew.Dump(metadata)
 }

@@ -35,9 +35,8 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "eta-multitool",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Part of the standard issue Ethereal Transit Authority Toolbelt",
+	Long: `A simple CLI tool to explore the Grim Syndicate and Ethereal Transit Authority ecosystem.
 
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files

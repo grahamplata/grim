@@ -6,6 +6,7 @@ package components
 import (
 	"context"
 	"eta-multitool/pkg/config"
+	"fmt"
 	"time"
 
 	"github.com/gagliardetto/solana-go"
@@ -147,6 +148,7 @@ func GetTokenFromTransaction(client *rpc.Client, gen_sig solana.Signature, pubke
 	}
 	// Parse all 'Account' keys keeping the second entry as that will be our NFT + Metadata Account
 	account_keys := tx.Transaction.GetParsedTransaction().Message.AccountKeys
+	fmt.Println(account_keys)
 	return account_keys[1]
 }
 

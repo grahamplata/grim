@@ -24,21 +24,35 @@ package cmd
 import (
 	"eta-multitool/pkg/components"
 	"eta-multitool/pkg/config"
+	"eta-multitool/pkg/text"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-// fetchCmd represents the fetch command
+// fetchCmd represents the base verb command for fetch keyword
 var fetchCmd = &cobra.Command{
 	Use:   "fetch",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Fetch details about 'GRIM' artifacts",
+	Long:  "Fetch details about 'GRIM' artifacts",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("eta-multitool fetch")
+	},
+}
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+// tokenCmd token action
+var tokenCmd = &cobra.Command{
+	Use:   "tokens",
+	Short: "Returns all tokens from the given authority",
+	Long: `Returns all tokens from the given authority
+
+This includes tokens from the Original Grim collection, 
+the Daemons of the 'Lurkers of the Abyss' and finally 
+the Ingredients of Lordrym's Workshop. 
+
+This operation is very slow unless a private node is used.
+https://docs.solana.com/cluster/rpc-endpoints#rate-limits-2`,
 	Run: func(cmd *cobra.Command, args []string) {
 		output, _ := cmd.Flags().GetString("output")
 		config.SetOutput(output)
@@ -46,24 +60,51 @@ to quickly create a Cobra application.`,
 	},
 }
 
+// metadataCmd metadata action
 var metadataCmd = &cobra.Command{
 	Use:   "metadata",
-	Short: "Metadata short description",
-	Long:  `Metadata long description`,
+	Short: "Fetches token Metadata",
+	Long: `Fetches detailed NFT token Metadata
+
+Given a token address returns a formatted json blob from arweave.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("metadata")
+		output, _ := cmd.Flags().GetString("output")
+		config.SetOutput(output)
+		if len(args) < 1 {
+			logrus.Error(fmt.Sprintf("%s: fetch metadata requires an argument", text.GrimError))
+		}
+		components.GetMetadataByAddress(args[0])
+	},
+}
+
+// walletCmd metadata action
+var walletCmd = &cobra.Command{
+	Use:   "wallet",
+	Short: "fetch the 'GRIM' community wallet",
+	Long: `fetch the 'GRIM' community wallet
+
+'GRIM'
+community wallet address:    Es1YghGkHZNJ8A9r6oFEHbWsRHbqs4rz6gfkRJ9V4bYf
+cold storage wallet address: RTp26f9wY2fXxeWRE7FkS9iVrsuxgdUJfDYH8GgoBH9`,
+	Run: func(cmd *cobra.Command, args []string) {
+		output, _ := cmd.Flags().GetString("output")
+		config.SetOutput(output)
+		// add cold storage wallet
+		components.GetWallet()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(fetchCmd)
-	fetchCmd.AddCommand(metadataCmd)
+	fetchCmd.AddCommand(tokenCmd, metadataCmd, walletCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// fetchCmd.PersistentFlags().String("foo", "", "A help for foo")
+	rootCmd.PersistentFlags().String("all", "", "output type of the cli (default is ...)")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
